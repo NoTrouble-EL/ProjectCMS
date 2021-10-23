@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xiaohupao.dao.OrderRepairDao">
+    
+    <sql id="sql_queryAll">
+        o.ORDER_ID AS orderId, o.ORDER_TYPE AS orderType, o.PROGRESS_ID AS progressId, o.RESTORE_RESULT AS restoreResult,
+        o.USER_ID AS userId, o.START_TIME AS startTime, o.END_TIME AS endTime, o.STATUS AS status, o.TAKEOUT_TIME AS takeoutTime,
+        o.CUS_ID AS cusId, op.PROGRESS_NAME AS progressName, su.REAL_NAME AS realName, oc.CUS_NAME AS cusName
+    </sql>
+
+    <sql id="sql_queryByID">
+        o.ORDER_ID AS orderId, o.ORDER_TYPE AS orderType, o.PROGRESS_ID AS progressId, o.RESTORE_RESULT AS restoreResult,
+        o.USER_ID AS userId, o.START_TIME AS startTime, o.END_TIME AS endTime, o.STATUS AS status, o.TAKEOUT_TIME AS takeoutTime,
+        o.CUS_ID AS cusId
+    </sql>
+
+    <insert id="addOrderRepair" parameterType="cn.xiaohupao.domain.OrderRepair">
+        INSERT INTO ORDER_REPAIR
+        (ORDER_ID, ORDER_TYPE, PROGRESS_ID, USER_ID, START_TIME, STATUS, CUS_ID)
+        VALUE
+        (#{orderId}, #{orderType}, 1, #{userId}, now(), '1', #{cusId})
+
+    </insert>
+
+    <update id="updateOrderRepair">
+        UPDATE ORDER_REPAIR
+        <set>
+            <if test="orderType!=null and orderType!=''">
+                ORDER_TYPE = #{orderRepair},
+            </if>
+            <if test="cusId!=null and cusId!=''">
+                CUS_ID = #{cusId},
+            </if>
+            <if test="progressId!=null and progressId!=''">
+                PROGRESS_ID = #{progressId}
+            </if>
+        </set>
+        WHERE
+        ORDER_ID = #{orderId}
+    </update>
+
+    <select id="queryAll" parameterType="cn.xiaohupao.domain.OrderRepair" resultType="cn.xiaohupao.domain.OrderRepair">
+        SELECT <include refid="sql_queryAll"/>
+        FROM order_repair o
+        INNER JOIN order_process op on o.PROGRESS_ID = op.PROGRESS_ID
+        INNER JOIN sys_user su on o.USER_ID = su.USER_ID
+        LEFT JOIN order_customer oc on o.CUS_ID = oc.CUS_ID
+        <where>
+            <if test="orderType!=null and orderType!=''">
+                o.ORDER_TYPE = #{orderType}
+            </if>
+            <if test="begin!=null and begin!=''">
+                AND o.START_TIME >= #{begin}
+            </if>
+            <if test="end!=null and end!=''">
+                AND o.START_TIME &lt;= #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryById" resultType="cn.xiaohupao.domain.OrderRepair">
+        SELECT *
+        FROM ORDER_REPAIR o
+        WHERE o.ORDER_ID = #{orderId}
+    </select>
+</mapper>
