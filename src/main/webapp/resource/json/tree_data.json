@@ -1,0 +1,72 @@
+[{
+	"id":1,
+	"text":"部门管理",
+	"state": "closed",
+	"children":[{
+		"id":11,
+		"text":"添加部门",
+		"attributes":{
+				"url":"dept/addDept.jsp"
+			}
+		
+	},{
+		"id":12,
+		"text":"编辑部门"
+		
+	},{
+		"id":13,
+		"text":"删除部门"
+	}]
+},{
+	"id":2,
+	"text":"员工管理",
+	"state": "closed",
+	"children":[{
+		"id":21,
+		"text":"添加员工",
+		"attributes":{
+				"url":"emp/addEmp.jsp"
+			}
+
+	},{
+		"id":22,
+		"text":"编辑员工",
+		"attributes":{
+				"url":"user/showuser.html"
+			}
+		
+	},{
+		"id":23,
+		"text":"删除员工",
+		"attributes":{
+				"url":"emp/delete.jsp"
+			}
+		
+	}]
+},{
+	"id":3,
+	"text":"仓库管理",
+	"state": "closed",
+	"children":[{
+		"id":31,
+		"text":"添加仓库",
+		"attributes":{
+			"url":"emp/addEmp.jsp"
+		}
+
+	},{
+		"id":32,
+		"text":"编辑员工",
+		"attributes":{
+			"url":"emp/EmpServlet?status=queryAll"
+		}
+
+	},{
+		"id":33,
+		"text":"删除员工",
+		"attributes":{
+			"url":"emp/delete.jsp"
+		}
+
+	}]
+}]
