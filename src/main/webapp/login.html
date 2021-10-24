@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .box-card {
+            margin: 100px auto;
+            width: 350px;
+        }
+
+        [v-cloak] {
+            display: none;
+
+        }
+    </style>
+</head>
+
+<body style="background-color: #202d3d">
+    <div id="app" v-cloak>
+        <el-card class="box-card">
+            <div slot="header" class="clearfix" style="text-align: center;">
+                用户登录
+            </div>
+            <el-form ref="form" :model="login">
+                <el-form-item>
+                    <el-input prefix-icon="el-icon-mobile" v-model="login.userName" placeholder="账号"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-input prefix-icon="el-icon-lock" v-model="login.password" placeholder="密码"
+                              type="password" show-password></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="submit" :disabled="!login.userName || !login.password"
+                               style="width: 100%">登录
+                    </el-button>
+                    <!--<el-alert :title="form.errorMsg" type="error" v-if="form.errorMsg" :closable="false"></el-alert>-->
+                </el-form-item>
+            </el-form>
+        </el-card>
+    </div>
+</body>
+
+<!-- import Vue before Element -->
+<script src="/resource/js/vue.js"></script>
+<script src="/resource/js/axios.min.js"></script>
+
+<!-- import JavaScript -->
+<script src="/resource/element-ui/lib/index.js"></script>
+<script type="module">
+    import storage from "./resource/js/storage.js";
+    new Vue({
+        el: '#app',
+        data: {
+            login: {}
+        },
+        methods: {
+            submit() {
+                axios.post("/user/login", this.login)
+                    .then(resp => {
+                        if (resp.data) {
+                            let user = resp.data;
+                            console.log(user);
+                            this.login = resp.data
+                            storage.set("user", user);
+                            window.location.href = 'index.html';
+                        } else {
+                            this.$message.error("UserName Or Password Error!");
+                        }
+                    }).catch(function () {
+                    this.$message.error("error!");
+                });
+            }
+        }
+    });
+</script>
+</html>

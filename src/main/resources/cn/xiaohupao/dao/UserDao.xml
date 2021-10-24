@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xiaohupao.dao.UserDao">
+
+    <insert id="addUser">
+        INSERT INTO
+        SYS_USER
+        (USER_NAME, PASSWORD, REAL_NAME, STATUS, PHONE, CREATE_DATE, AGE, EMAIL, TYPE_ID)
+        VALUE
+        (#{userName}, #{password}, #{realName}, 1, #{phone}, now(), #{age}, #{email}, #{typeId})
+    </insert>
+
+    <update id="updateUser">
+        UPDATE SYS_USER
+        <set>
+            <if test="userName!=null and userName!=''">
+                USER_NAME = #{userName},
+            </if>
+            <if test="realName!=null and realName!=''">
+                REAL_NAME = #{realName},
+            </if>
+            <if test="status!=null and status!=''">
+                STATUS = #{status},
+            </if>
+            <if test="phone!=null and phone!=''">
+                PHONE = #{phone},
+            </if>
+            <if test="createDate!=null and createDate!=''">
+                CREATE_DATE = #{createDate},
+            </if>
+            <if test="age!=null and age!=''">
+                AGE = #{age},
+            </if>
+            <if test="email!=null and email!=''">
+                EMAIL = #{email},
+            </if>
+            <if test="typeId!=null and typeId!=''">
+                TYPE_ID = #{typeId}
+            </if>
+        </set>
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <delete id="deleteUserById">
+        DELETE
+        FROM SYS_USER
+        WHERE USER_ID = #{userId}
+    </delete>
+
+    <select id="queryLogin" resultType="cn.xiaohupao.domain.User">
+        SELECT *
+        FROM SYS_USER
+        WHERE USER_NAME = #{param1}
+            AND PASSWORD = #{param2}
+    </select>
+
+    <select id="queryAll" resultType="cn.xiaohupao.domain.User">
+        SELECT *
+        FROM SYS_USER
+        <where>
+            <if test="realName!=null and realName!=''">
+                REAL_NAME LIKE '%${realName}%'
+            </if>
+            <if test="begin!=null and begin!=''">
+                AND CREATE_DATE >= #{begin}
+            </if>
+            <if test="end!=null and end!=''">
+                AND CREATE_DATE &lt;= #{end}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryById" resultType="cn.xiaohupao.domain.User">
+        SELECT *
+        FROM SYS_USER
+        WHERE USER_ID = #{userId}
+    </select>
+</mapper>
