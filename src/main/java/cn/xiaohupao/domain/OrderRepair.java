@@ -39,6 +39,7 @@ public class OrderRepair {
   private String progressName;
   private String realName;
   private String cusName;
+
   private String begin;
   private String end;
   private String[] dateRange;

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .picture{
+            width: 60px;
+            height: 60px;
+            border: 0px;
+        }
+        .disabled  .el-upload--picture-card{
+            display:none;   /* 上传按钮隐藏 */
+        }
+        h1, .box-card {
+            margin: auto;
+            width: 60%;
+        }
+
+        .el-form-item {
+            margin-bottom: 0
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <!--<h1 style="margin: 20px auto">工单列表</h1>-->
+        <el-card class="box-card" style="width: 1180px;">
+            <div slot="header" class="clearfix">
+                <el-form :inline="true" :model="query">
+                    <el-form-item>
+                        <el-select v-model="query.orderType" placeholder="请选择">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-date-picker
+                                v-model="query.dateRange"
+                                type="daterange"
+                                range-separator="至"
+                                start-placeholder="开始注册日期"
+                                end-placeholder="结束注册日期"
+                                value-format="yyyy-MM-dd">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="load"><i class="el-icon-search"></i>搜索</el-button>
+                        <el-button type="success" plain @click="dialog.addShow = true">新建</el-button>
+                    </el-form-item>
+
+                </el-form>
+            </div>
+            <el-table :data="tableData" stripe border>
+                <el-table-column prop="orderId" label="ID" width="80" align="center"></el-table-column>
+                <el-table-column prop="orderType" label="类型" :formatter="formatterType" align="center"></el-table-column>
+                <el-table-column prop="progressName" label="进度" align="center"></el-table-column>
+                <el-table-column prop="restoreResult" label="恢复结果" align="center"></el-table-column>
+                <el-table-column prop="realName" label="前台" align="center"></el-table-column>
+                <el-table-column prop="startTime" label="创建时间" align="center"></el-table-column>
+                <el-table-column prop="endTime" label="结单时间" align="center"></el-table-column>
+                <el-table-column prop="takeoutTime" label="取盘时间" align="center"></el-table-column>
+                <el-table-column prop="cusName" label="客户" align="center"></el-table-column>
+                <el-table-column label="操作" width="160" align="center">
+                    <!--<template slot-scope="scope">
+                        <el-link type="primary" size="small" @click="edit(scope.row.orderId)">编辑</el-link>
+
+                        <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.orderId)">
+                            <el-link slot="reference" type="danger" size="small">删除</el-link>
+                        </el-popconfirm>
+                        <el-link type="success" size="small" @click="showImageFrom(scope.row.orderId)">工单照片</el-link>
+                    </template>-->
+                </el-table-column>
+            </el-table>
+            <!--<el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="query.currentPage"
+                    :page-sizes="pageInfo.pageSizes"
+                    :page-size="query.pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="pageInfo.total">
+            </el-pagination>-->
+            <el-dialog title="新建工单" :visible.sync="dialog.addShow" width="400px">
+                <el-form :model="addForm" label-width="80px" ref="addForm">
+                    <el-form-item label="工单类型" prop="orderType">
+                        <el-select v-model="addForm.orderType" placeholder="请选择">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="用户" prop="cusId">
+                        <el-select v-model="addForm.cusId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in custommers"
+                                    :key="item.cusId"
+                                    :label="item.cusUnit+':'+item.cusName"
+                                    :value="item.cusId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.addShow = false">取 消</el-button>
+                    <el-button type="primary" @click="save()">保存</el-button>
+                </div>
+            </el-dialog>
+
+            <!--<el-dialog title="编辑工单" :visible.sync="dialog.updateShow" width="400px">
+                <el-form :model="updateForm" label-width="80px" ref="updateForm">
+                    <el-form-item label="工单类型" prop="orderType">
+                        <el-select v-model="updateForm.orderType" placeholder="请选择">
+                            <el-option
+                                    v-for="item in options"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="用户" prop="cusId">
+                        <el-select v-model="updateForm.cusId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in custommers"
+                                    :key="item.cusId"
+                                    :label="item.cusUnit+':'+item.cusName"
+                                    :value="item.cusId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item prop="工单编号" prop="orderId" v-show="false">
+                        <el-input v-model="updateForm.orderId"></el-input>
+                    </el-form-item>
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.updateShow = false">取 消</el-button>
+                    <el-button type="primary" @click="update()">保存</el-button>
+                </div>
+            </el-dialog>-->
+
+
+        </el-card>
+    </div>
+
+    <!-- import Vue before Element -->
+    <script src="/resource/js/vue.js"></script>
+    <script src="/resource/js/axios.min.js"></script>
+    <!-- import JavaScript -->
+    <script src="/resource/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: `#app`,
+            data: {
+                query: {
+
+                },
+                addForm: {
+
+                },
+                dialog: {
+                    addShow: false
+                },
+                tableData: [],
+                options: [
+                    {
+                        value: '1',
+                        label:'恢复'
+                    },{
+                        value: '2',
+                        label: '消除'
+                    },{
+                        value: null,
+                        label: '全部'
+                    }
+                ],
+                custommers: [
+
+                ],
+            },
+            methods: {
+                load(){
+                    axios.post("../OrderRepair/queryAll",this.query)
+                    .then(resp => {
+                        this.tableData = resp.data;
+                    }).catch(error => {
+                        this.$message.error("error!");
+                    })
+                },
+                formatterType(row){
+                    if(row.orderType === '1'){
+                        return '恢复';
+                    }else{
+                        return '消除';
+                    }
+                },
+                save(){
+                  axios.post("../OrderRepair/add", this.addForm)
+                    .then(resp =>{
+                        this.$message.success("success!");
+                        this.dialog.addShow = false;
+                        this.load();
+                    })
+                    .catch(error =>{
+                        this.$message.error("error!");
+                    })
+                    .then(()=>{
+                        this.$refs.addForm.resetFields()
+                    })
+                },
+            }
+        })
+    </script>
+</body>
+</html>

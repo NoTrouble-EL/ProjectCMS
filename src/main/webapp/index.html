@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>后台管理系统</title>
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <!-- import Vue before Element -->
+    <script src="/resource/js/vue.js"></script>
+    <script src="/resource/js/axios.min.js"></script>
+    <!-- import JavaScript -->
+    <script src="/resource/element-ui/lib/index.js"></script>
+</head>
+<body>
+<div id="app">
+    <el-container :style="{'height':screenHeight}">
+        <el-aside width="auto">
+            <el-menu class="el-menu-vertical-demo"
+                     :collapse="isopen"
+                     background-color="#2d3a4b"
+                     text-color="#fff"
+                     active-text-color="#0086ff"
+                     :default-active="active"
+                     style=" height: 100vh;">
+                <el-menu-item>
+                    <template slot="title">
+                        <!-- 公司logo  -->
+                        <!--<el-avatar slot="title" style="width: 100%;"
+                                   shape="square" size="medium "
+                                   src="imgs/fox2.png" style="width:100%"></el-avatar>-->
+                        <h3 style="text-align: center;">数据恢复后台管理系统</h3>
+                    </template>
+                </el-menu-item>
+                <el-submenu :index="val.url+''" :key="index" v-for="(val,index) in menus" v-if="val.pid ==null && val.children.length >0">
+                    <template slot="title">
+                        <i :class="val.icon"></i>
+                        <span slot="title">{{val.text}}</span>
+                    </template>
+                    <el-menu-item-group v-for="(v,i) in val.children" >
+                        <el-menu-item @click="toClick(v.text,v.url)" :index="v.url">
+                            <span slot="title" style="margin-left: 10px;">{{v.text}}</span>
+                        </el-menu-item>
+                    </el-menu-item-group>
+                </el-submenu>
+                <el-menu-item @click="toClick(val.text,val.url)" v-else :index="val.url">
+                    <i :class="val.icon"></i>
+                    <span slot="title">{{val.text}}</span>
+                </el-menu-item>
+
+            </el-menu>
+        </el-aside>
+
+        <el-container>
+            <el-header style="line-height: 40px;height: 40px;">
+                <i :class="headericon" @click="headericons()"></i>
+                <div style="float:right">
+                    <el-dropdown @command="command">
+                    <span class="el-dropdown-link"> 欢迎：{{userName}}
+                        <i class="el-icon-caret-bottom"></i>
+                    </span>
+                        <el-dropdown-menu slot="dropdown">
+                            <el-dropdown-item command="1">修改密码</el-dropdown-item>
+                            <el-dropdown-item command="2">基本信息</el-dropdown-item>
+                            <el-dropdown-item divided command="3">退出</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </el-dropdown>
+
+                </div>
+            </el-header>
+            <el-main>
+                <el-tabs v-model="tabindex" type="card" editable   @tab-remove="removetabs" @tab-click="clicktabs">
+                    <el-tab-pane
+                            :key="item.name"
+                            v-for="(item, index) in tabvals"
+                            :label="item.title"
+                            :name="item.name">
+                        <iframe v-if="src==item.name" id="mainIframe" name="mainIframe"
+                                frameborder="0" :src="src" :style="{'height':iframeHeight}"
+                                class="iframe" scrolling="none">
+                        </iframe>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-main>
+        </el-container>
+    </el-container>
+
+
+</div>
+<script type="module">
+    import storage from "./resource/js/storage.js";
+
+    var index = new Vue({
+        el: '#app',
+        data() {
+            return {
+                userName: '',
+                isopen: false,
+                headericon: 'el-icon-s-fold',
+                active: '',
+                menus: [
+                    {
+                        id: 1, text: '系统管理', pid: null, url: 'ctr/admin', icon: 'el-icon-setting', children: [
+                            {
+                                id: 12,
+                                text: '用户操作',
+                                pid: 1,
+                                url: 'user/showuser.html'
+                            }
+                        ]
+                    },
+                    {
+                        id: 2, text: '工单管理', pid: null, url: 'order', icon: 'el-icon-s-grid', children: [
+                            {
+                                id: 22,
+                                text: '工单',
+                                pid: 2,
+                                url: 'orderrepair/showrepair.html'
+                            },
+                            {
+                                id: 23,
+                                text: '工单照片',
+                                pid: 2,
+                                url: 'order/showimage.html'
+                            },
+                            {
+                                id: 24,
+                                text: '载体硬盘',
+                                pid: 2,
+                                url: 'order/carrierdist.html'
+                            }
+                        ]
+                    },
+                    {
+                        id: 3, text: '客户管理', pid: null,  url: 'customer', icon: 'el-icon-s-custom', children: [
+                            {
+                                id: 32,
+                                text: '客户',
+                                pid: 3,
+                                url: 'customer/customer.html'
+                            }
+                        ]
+                    },
+                    {
+                        id: 4, text: '库存管理', pid: null, url: 'ctr/admin1', icon: 'el-icon-s-data', children: [
+                            {
+                                id: 43,
+                                text: '库存',
+                                pid: 4,
+                                url: 'store/store.html'
+                            }
+                        ]
+                    }
+                ],
+                screenHeight: document.documentElement.clientHeight + "px",
+                iframeHeight: document.documentElement.clientHeight - 41 - 60 + "px",
+                src: "main.html",
+                tabindex: 'main.html',
+                tabvals: [{title: '首页', name: 'main.html',}],
+
+            }
+        },
+        methods: {
+            command(index) {
+                switch (index) {
+                    case '1':
+                        this.toClick('修改密码', 'updateadmin')
+                        break;
+                    case '2':
+                        break;
+                    case '3':
+                        storage.remove("user");
+                        window.location.href="login.html";
+                        break
+                }
+            },
+            headericons() {
+                this.isopen == false ? this.isopen = true : this.isopen = false;
+                this.headericon == 'el-icon-s-fold' ? this.headericon = 'el-icon-s-unfold'
+                    : this.headericon = 'el-icon-s-fold'
+            },
+            toClick(text, url) {
+                this.active = url;
+                let isok = this.tabvals.filter(tab => tab.name == url);
+                if (isok.length < 1) {
+                    this.tabvals.push({title: text, name: url})
+                    this.tabindex = url;
+                    this.src = url;
+                } else {
+                    this.tabindex = isok[0].name;
+                    this.src = isok[0].name;
+                }
+            },
+            clicktabs(tab) {
+                this.src = tab.name
+            },
+            removetabs(tabname) {
+                if (tabname != 'home') {
+                    let index = this.tabvals.findIndex(tab => tab.name == tabname);
+                    this.tabvals.splice(index, 1)
+                    this.tabindex = this.tabvals[index - 1].name
+                    this.src = this.tabvals[index - 1].name
+                }
+            }
+
+        },
+        created() {
+            let token = storage.get("user").token;
+            //此处后期可以用来判断用户是否登录，如果token值为空则跳转到相应页面，也可以判断加载的权限
+            this.userName = token==null?'':token.userName;
+        }
+    })
+</script>
+<style>
+    body {
+        margin: 0 auto;
+        overflow: hidden;
+    }
+
+    .el-menu {
+        border-right: 0px !important;
+    }
+
+    .el-container {
+        border: 0px !important;
+    }
+
+    .el-main {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+
+    }
+
+    .el-menu-vertical-demo:not(.el-menu--collapse) {
+        width: 200px;
+        min-height: 400px;
+    }
+
+    .el-header {
+        background-color: white;
+        color: #333;
+        line-height: 60px;
+        border-bottom: 1px solid #f6f6f6
+    }
+
+    .el-tabs__header {
+        padding: 0;
+        position: relative;
+        margin: 0 0 0px !important;
+    }
+
+    .el-header i {
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .el-aside {
+        color: #333;
+        background-color: white;
+    }
+
+    .el-tabs__new-tab {
+        opacity: 0;
+    }
+
+    .iframe {
+        border: none;
+        width: 100%;
+        background-color: #f2f2f2;
+    }
+
+    .el-avatar {
+        background: white !important;
+    }
+</style>
+</body>
+</html>
+
