@@ -39,6 +39,12 @@
         ORDER_ID = #{orderId}
     </update>
 
+    <delete id="deleteOrderRepairById">
+        DELETE
+        FROM ORDER_REPAIR
+        WHERE ORDER_ID = #{id}
+    </delete>
+
     <select id="queryAll" parameterType="cn.xiaohupao.domain.OrderRepair" resultType="cn.xiaohupao.domain.OrderRepair">
         SELECT <include refid="sql_queryAll"/>
         FROM order_repair o

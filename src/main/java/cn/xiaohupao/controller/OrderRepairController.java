@@ -45,4 +45,9 @@ public class OrderRepairController {
     public void addOrderRepair(OrderRepair orderRepair){
         orderRepairService.addOrderRepair(orderRepair);
     }
+
+    @GetMapping("delete/{id}")
+    public void deleteOrderRepairById(@PathVariable("id") int id){
+        orderRepairService.deleteOrderRepairById(id);
+    }
 }

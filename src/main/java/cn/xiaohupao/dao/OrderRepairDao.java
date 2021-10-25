@@ -36,4 +36,10 @@ public interface OrderRepairDao {
      * @param orderRepair orderRepair对象
      */
     void updateOrderRepair(OrderRepair orderRepair);
+
+    /**
+     * 根据id删除OrderRepair对象
+     * @param id id
+     */
+    void deleteOrderRepairById(int id);
 }

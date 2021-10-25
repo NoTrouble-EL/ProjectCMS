@@ -14,4 +14,5 @@ public interface OrderRepairService {
     OrderRepair queryById(int orderId);
     void addOrderRepair(OrderRepair orderRepair);
     void updateOrderRepair(OrderRepair orderRepair);
+    void deleteOrderRepairById(int orderId);
 }

@@ -15,8 +15,12 @@ import java.util.List;
 @Service
 public class OrderRepairServiceImpl implements OrderRepairService {
 
+    private final OrderRepairDao orderRepairDao;
+
     @Autowired
-    private OrderRepairDao orderRepairDao;
+    public OrderRepairServiceImpl(OrderRepairDao orderRepairDao) {
+        this.orderRepairDao = orderRepairDao;
+    }
 
     @Override
     public List<OrderRepair> queryAll(OrderRepair orderRepair) {
@@ -36,5 +40,10 @@ public class OrderRepairServiceImpl implements OrderRepairService {
     @Override
     public void updateOrderRepair(OrderRepair orderRepair) {
         orderRepairDao.updateOrderRepair(orderRepair);
+    }
+
+    @Override
+    public void deleteOrderRepairById(int orderId) {
+        orderRepairDao.deleteOrderRepairById(orderId);
     }
 }
