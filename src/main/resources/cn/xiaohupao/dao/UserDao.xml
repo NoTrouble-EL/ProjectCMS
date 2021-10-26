@@ -25,7 +25,7 @@
             <if test="phone!=null and phone!=''">
                 PHONE = #{phone},
             </if>
-            <if test="createDate!=null and createDate!=''">
+            <if test="createDate!=null">
                 CREATE_DATE = #{createDate},
             </if>
             <if test="age!=null and age!=''">
@@ -55,17 +55,19 @@
     </select>
 
     <select id="queryAll" resultType="cn.xiaohupao.domain.User">
-        SELECT *
-        FROM SYS_USER
+        SELECT s.*, t.TYPE_NAME as typeName
+        FROM SYS_USER s
+        INNER JOIN USER_TYPE t
+        ON s.TYPE_ID = t.TYPE_ID
         <where>
             <if test="realName!=null and realName!=''">
-                REAL_NAME LIKE '%${realName}%'
+                s.REAL_NAME LIKE '%${realName}%'
             </if>
             <if test="begin!=null and begin!=''">
-                AND CREATE_DATE >= #{begin}
+                AND s.CREATE_DATE >= #{begin}
             </if>
             <if test="end!=null and end!=''">
-                AND CREATE_DATE &lt;= #{end}
+                AND s.CREATE_DATE &lt;= #{end}
             </if>
         </where>
     </select>

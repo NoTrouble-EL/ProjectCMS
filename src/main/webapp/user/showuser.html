@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User List</title>
+
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <style>
+        h1, .box-card {
+            margin: auto;
+            width: 60%;
+        }
+
+        .el-form-item {
+            margin-bottom: 0
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <!--<h1 style="margin: 20px auto">用户列表</h1>-->
+        <el-card class="box-card"style="width: 1180px;">
+            <div slot="header" class="clearfix">
+                <el-form :inline="true" :model="query">
+                    <el-form-item>
+                        <el-input v-model="query.realName" placeholder="用户名" :clearable="true"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-date-picker
+                                v-model="query.dateRange"
+                                type="daterange"
+                                range-separator="至"
+                                start-placeholder="开始注册日期"
+                                end-placeholder="结束注册日期"
+                                value-format="yyyy-MM-dd">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="load"><i class="el-icon-search"></i>搜索</el-button>
+                        <el-button type="success" @click="dialog.addshow = true">新建</el-button>
+                    </el-form-item>
+
+                </el-form>
+            </div>
+
+            <el-table :data="tableData" stripe border >
+                <el-table-column prop="userId" label="ID" width="40" align="center"></el-table-column>
+                <el-table-column prop="userName" label="账号" align="center"></el-table-column>
+                <el-table-column prop="realName" label="姓名" align="center"></el-table-column>
+                <el-table-column prop="typeName" label="用户类型" align="center"></el-table-column>
+                <el-table-column prop="createDate" label="注册日期" align="center"></el-table-column>
+                <el-table-column prop="age" label="年龄" align="center"></el-table-column>
+                <el-table-column prop="email" label="邮箱" width="180" align="center"></el-table-column>
+                <el-table-column prop="status" label="状态" :formatter="statusFormat" align="center"></el-table-column>
+                <el-table-column prop="lastLogin" label="登录ip" align="center"></el-table-column>
+                <el-table-column prop="lastTime" label="登录时间" align="center"></el-table-column>
+                <el-table-column label="操作" width="100" align="center">
+                    <template slot-scope="scope">
+                        <el-link type="primary" size="small" @click="edit(scope.row.userId)">编辑</el-link>
+                        <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.userId)">
+                            <el-link slot="reference" type="danger" size="small">删除</el-link>
+                        </el-popconfirm>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageInfo.currentPage"
+                    :page-sizes="pageInfo.pageSizes"
+                    :page-size="pageInfo.pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="pageInfo.total">
+            </el-pagination>
+
+            <el-dialog title="修改用户" :visible.sync="dialog.show" width="400px">
+                <el-form :model="editForm" ref="editForm" label-width="100px">
+                    <el-form-item label="用户类型" prop="typeId" >
+                        <el-select v-model="editForm.typeId" placeholder="请选择">
+                            <el-option
+                                    v-for="userType in typeData"
+                                    :key="userType.typeId"
+                                    :label="userType.typeName"
+                                    :value="userType.typeId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="用户名" prop="userName" >
+                        <el-input v-model="editForm.userName" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="姓名" prop="realName">
+                        <el-input v-model="editForm.realName" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="电话" prop="phone">
+                        <el-input v-model="editForm.phone" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="注册时间" prop="createDate">
+                        <el-date-picker
+                                v-model="editForm.createDate"
+                                type="date"
+                                placeholder="请选择日期"
+                                value-format="yyyy-MM-dd">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="年龄" prop="age">
+                        <el-input v-model="editForm.age" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="邮箱" prop="email">
+                        <el-input v-model="editForm.email" auto-complete="off"></el-input>
+                    </el-form-item>
+
+                    <!--<el-form-item label="编号" v-show="false" prop="id">
+                        <el-input v-model="editForm.userId" auto-complete="off"></el-input>
+                    </el-form-item>-->
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.show = false">取 消</el-button>
+                    <el-button type="primary" @click="update()">保存</el-button>
+                </div>
+            </el-dialog>
+
+        </el-card>
+    </div>
+</body>
+
+<!-- import Vue before Element -->
+<script src="/resource/js/vue.js"></script>
+<script src="/resource/js/axios.min.js"></script>
+<!-- import JavaScript -->
+<script src="/resource/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            query: {},
+            dialog: {
+                addShow: false,
+                show: false
+            },
+            tableData: [],
+            pageInfo: {
+                currentPage: 1,
+                pageSize: 5,
+                total: 0,
+                pageSizes: [5, 10, 20, 50, 100]
+            },
+            editForm: {},
+            typeData:[],
+        },
+        methods: {
+            load(){
+              axios.post("queryAll/"+this.pageInfo.pageSize+"/"+this.pageInfo.currentPage, this.query)
+                .then(resp =>{
+                    this.tableData = resp.data.list;
+                    this.pageInfo.total = resp.data.total;
+                })
+                .catch(error =>{
+                    this.$message.error("load error!");
+                })
+            },
+            handleSizeChange(size) {//改变的是每页显示的条数
+                this.pageInfo.pageSize = size;
+                this.load();
+            },
+            handleCurrentChange(size) {//改变当前页数
+                this.pageInfo.currentPage = size;
+                this.load();
+            },
+            statusFormat(row){
+                if (row.status === '1') {
+                    return '可用'
+                } else  {
+                    return '停用'
+                }
+
+            },
+            edit(userId){
+                axios.get("queryUserById/"+userId)
+                .then(resp =>{
+                    this.editForm = resp.data;
+                    this.dialog.show = true;
+                })
+                .catch(error =>{
+                    this.$message.error("edit error!");
+                })
+            },
+            loadTypeData(){
+                axios.get("../userType/queryAll")
+                .then(resp =>{
+                    this.typeData = resp.data;
+                })
+                .catch(error =>{
+                    this.$message.error("loadTypeData error!");
+                })
+            },
+            update(){
+              axios.post("update", this.editForm)
+                .then(resp =>{
+                    this.$message.success("update success!");
+                    this.dialog.show = false;
+                    this.load();
+                })
+                .catch(error =>{
+                    this.$message.error("update error!");
+                })
+                .then(() =>{
+                    //重置表单
+                    this.$refs.editForm.resetFields();
+                })
+            },
+        },
+        mounted: function(){
+            this.load();
+            this.loadTypeData();
+        }
+
+    })
+</script>
+</html>

@@ -48,5 +48,7 @@ public interface UserDao {
      * @param userId 用户Id
      * @return 用户信息对象
      */
-    User queryById(int userId);
+    User queryById(Integer userId);
+
+
 }

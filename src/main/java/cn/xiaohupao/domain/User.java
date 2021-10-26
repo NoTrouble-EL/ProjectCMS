@@ -31,4 +31,10 @@ public class User {
   private String email;
   private Integer typeId;
 
+  private String typeName;
+
+  private String begin;
+  private String end;
+  private String[] dateRange;
+
 }

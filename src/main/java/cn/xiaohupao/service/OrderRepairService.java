@@ -1,6 +1,7 @@
 package cn.xiaohupao.service;
 
 import cn.xiaohupao.domain.OrderRepair;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public interface OrderRepairService {
 
-    List<OrderRepair> queryAll(OrderRepair orderRepair);
+    PageInfo<OrderRepair> queryAll(OrderRepair orderRepair, Integer pageSize, Integer pageNum);
     OrderRepair queryById(int orderId);
     void addOrderRepair(OrderRepair orderRepair);
     void updateOrderRepair(OrderRepair orderRepair);

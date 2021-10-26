@@ -3,6 +3,8 @@ package cn.xiaohupao.service.impl;
 import cn.xiaohupao.dao.UserDao;
 import cn.xiaohupao.domain.User;
 import cn.xiaohupao.service.UserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUserById(int userId) {
+    public void deleteUserById(Integer userId) {
         userDao.deleteUserById(userId);
     }
 
@@ -39,12 +41,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> queryAll(User user) {
-        return userDao.queryAll(user);
+    public PageInfo<User> queryAll(User user, Integer pageSize, Integer pageNum) {
+        //设置查询的时间
+        String[] dateRange = user.getDateRange();
+        if (dateRange != null){
+            user.setBegin(dateRange[0]);
+            user.setEnd(dateRange[1]);
+        }
+
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> users = userDao.queryAll(user);
+        return new PageInfo<>(users);
     }
 
     @Override
-    public User queryById(int userId) {
+    public User queryById(Integer userId) {
         return userDao.queryById(userId);
     }
 }

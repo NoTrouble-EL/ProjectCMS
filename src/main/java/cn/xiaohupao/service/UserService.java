@@ -1,6 +1,7 @@
 package cn.xiaohupao.service;
 
 import cn.xiaohupao.domain.User;
+import com.github.pagehelper.PageInfo;
 
 import java.util.List;
 
@@ -12,8 +13,8 @@ public interface UserService {
 
     void addUser(User user);
     User queryLogin(String userName, String password);
-    void deleteUserById(int userId);
+    void deleteUserById(Integer userId);
     void updateUser(User user);
-    List<User> queryAll(User user);
-    User queryById(int userId);
+    PageInfo<User> queryAll(User user, Integer pageSize, Integer pageNum);
+    User queryById(Integer userId);
 }

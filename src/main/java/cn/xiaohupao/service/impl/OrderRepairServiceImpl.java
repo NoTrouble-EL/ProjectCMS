@@ -3,6 +3,8 @@ package cn.xiaohupao.service.impl;
 import cn.xiaohupao.dao.OrderRepairDao;
 import cn.xiaohupao.domain.OrderRepair;
 import cn.xiaohupao.service.OrderRepairService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +25,10 @@ public class OrderRepairServiceImpl implements OrderRepairService {
     }
 
     @Override
-    public List<OrderRepair> queryAll(OrderRepair orderRepair) {
-        return orderRepairDao.queryAll(orderRepair);
+    public PageInfo<OrderRepair> queryAll(OrderRepair orderRepair, Integer pageSize, Integer pageNum) {
+        PageHelper.startPage(pageNum, pageSize);
+        List<OrderRepair> orderRepairs = orderRepairDao.queryAll(orderRepair);
+        return new PageInfo<>(orderRepairs);
     }
 
     @Override

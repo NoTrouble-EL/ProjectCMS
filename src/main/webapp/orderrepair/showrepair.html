@@ -82,15 +82,17 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <!--<el-pagination
+
+            <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
-                    :current-page="query.currentPage"
+                    :current-page="pageInfo.currentPage"
                     :page-sizes="pageInfo.pageSizes"
-                    :page-size="query.pageSize"
+                    :page-size="pageInfo.pageSize"
                     layout="total, sizes, prev, pager, next, jumper"
                     :total="pageInfo.total">
-            </el-pagination>-->
+            </el-pagination>
+
             <el-dialog title="新建工单" :visible.sync="dialog.addShow" width="400px">
                 <el-form :model="addForm" label-width="80px" ref="addForm">
                     <el-form-item label="工单类型" prop="orderType">
@@ -122,7 +124,7 @@
                 </div>
             </el-dialog>
 
-            <!--<el-dialog title="编辑工单" :visible.sync="dialog.updateShow" width="400px">
+            <el-dialog title="编辑工单" :visible.sync="dialog.updateShow" width="400px">
                 <el-form :model="updateForm" label-width="80px" ref="updateForm">
                     <el-form-item label="工单类型" prop="orderType">
                         <el-select v-model="updateForm.orderType" placeholder="请选择">
@@ -153,7 +155,7 @@
                     <el-button @click="dialog.updateShow = false">取 消</el-button>
                     <el-button type="primary" @click="update()">保存</el-button>
                 </div>
-            </el-dialog>-->
+            </el-dialog>
 
 
         </el-card>
@@ -172,11 +174,21 @@
                 query: {
 
                 },
+                pageInfo: {
+                    currentPage: 1,
+                    pageSize: 5,
+                    total: 0,
+                    pageSizes: [5, 10, 20, 50, 100]
+                },
                 addForm: {
 
                 },
                 dialog: {
-                    addShow: false
+                    addShow: false,
+                    updateShow: false
+                },
+                updateForm: {
+
                 },
                 tableData: [],
                 options: [
@@ -197,12 +209,21 @@
             },
             methods: {
                 load(){
-                    axios.post("../OrderRepair/queryAll",this.query)
+                    axios.post("../OrderRepair/queryAll"+"/"+this.pageInfo.pageSize+"/"+this.pageInfo.currentPage,this.query)
                     .then(resp => {
-                        this.tableData = resp.data;
+                        this.tableData = resp.data.list;
+                        this.pageInfo.total = resp.data.total;
                     }).catch(error => {
                         this.$message.error("error!");
                     })
+                },
+                handleSizeChange(size) {//改变的是每页显示的条数
+                    this.pageInfo.pageSize = size;
+                    this.load();
+                },
+                handleCurrentChange(size) {//改变当前页数
+                    this.pageInfo.currentPage = size;
+                    this.load();
                 },
                 formatterType(row){
                     if(row.orderType === '1'){
@@ -243,7 +264,31 @@
                     .catch(error =>{
                         this.$message.error("delete error!");
                     })
-                }
+                },
+                update(){
+                  axios.post("../OrderRepair/update")
+                    .then(resp =>{
+                        this.$message.success("update success!");
+                        this.dialog.updateShow = false;
+                        this.load();
+                    })
+                    .catch(error =>{
+                        this.$message.error("update error!");
+                    })
+                    .then(() =>{//重置表单数据
+                        this.$refs.updateForm.resetFields();
+                    })
+                },
+                edit(orderId){
+                  axios.get("../OrderRepair/queryById/"+orderId)
+                    .then(resp =>{
+                        this.updateForm = resp.data;
+                        this.dialog.updateShow = true;
+                    })
+                    .catch(error =>{
+                        this.$message.error("edit error!");
+                    })
+                },
 
             },
             mounted: function () {

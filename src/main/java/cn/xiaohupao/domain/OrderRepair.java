@@ -13,9 +13,9 @@ import java.util.Date;
 @AllArgsConstructor
 public class OrderRepair {
 
-  private long orderId;
+  private Integer orderId;
   private String orderType;
-  private long progressId;
+  private Integer progressId;
   private String restoreResult;
   private long userId;
 
@@ -43,7 +43,7 @@ public class OrderRepair {
   private String end;
   private String[] dateRange;
 
-  private int pageSize;
-  private int currentPage;
-  private int startRow;
+  private Integer pageSize;
+  private Integer currentPage;
+  private Integer startRow;
 }

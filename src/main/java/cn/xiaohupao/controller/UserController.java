@@ -2,11 +2,13 @@ package cn.xiaohupao.controller;
 
 import cn.xiaohupao.domain.User;
 import cn.xiaohupao.service.UserService;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * @Author: xiaohupao
@@ -43,8 +45,14 @@ public class UserController {
         userService.deleteUserById(id);
     }
 
-    @PutMapping("add")
+    @PostMapping("add")
     public void addUser(@RequestBody User user){
         userService.addUser(user);
     }
+
+    @PostMapping("queryAll/{pageSize}/{pageNum}")
+    public PageInfo<User> queryAll(@RequestBody User user, @PathVariable("pageSize") Integer pageSize, @PathVariable("pageNum") Integer pageNum){
+        return userService.queryAll(user, pageSize, pageNum);
+    }
+
 }
