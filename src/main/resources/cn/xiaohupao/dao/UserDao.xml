@@ -57,7 +57,7 @@
     <select id="queryAll" resultType="cn.xiaohupao.domain.User">
         SELECT s.*, t.TYPE_NAME as typeName
         FROM SYS_USER s
-        INNER JOIN USER_TYPE t
+        LEFT JOIN USER_TYPE t
         ON s.TYPE_ID = t.TYPE_ID
         <where>
             <if test="realName!=null and realName!=''">

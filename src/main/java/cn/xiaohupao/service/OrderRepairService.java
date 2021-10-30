@@ -12,6 +12,7 @@ import java.util.List;
 public interface OrderRepairService {
 
     PageInfo<OrderRepair> queryAll(OrderRepair orderRepair, Integer pageSize, Integer pageNum);
+    List<OrderRepair> queryAllRepairId();
     OrderRepair queryById(int orderId);
     void addOrderRepair(OrderRepair orderRepair);
     void updateOrderRepair(OrderRepair orderRepair);

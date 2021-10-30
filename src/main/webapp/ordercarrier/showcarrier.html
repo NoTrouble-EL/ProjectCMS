@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .picture{
+            width: 60px;
+            height: 60px;
+            border: 0px;
+        }
+        .disabled  .el-upload--picture-card{
+            display:none;   /* 上传按钮隐藏 */
+        }
+        h1, .box-card {
+            margin: auto;
+            width: 60%;
+        }
+
+        .el-form-item {
+            margin-bottom: 0
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <el-card class="box-card" style="width: 1180px;">
+            <div slot="header" class="clearfix">
+                <el-form :inline="true" :model="query">
+                    <el-form-item label="介质类型:">
+                        <el-select v-model="query.mediumId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in option1s"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="接口类型:">
+                        <el-select v-model="query.interId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in option2s"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="load"><i class="el-icon-search"></i>搜索</el-button>
+                        <el-button type="success" plain @click="dialog.addShow = true">新建</el-button>
+                    </el-form-item>
+
+                </el-form>
+            </div>
+
+            <el-table :data="tableData" stripe border>
+                <el-table-column prop="carrierId" label="ID" width="80" align="center"></el-table-column>
+                <el-table-column prop="orderId" label="工单编号" align="center"></el-table-column>
+                <el-table-column prop="mediumId" label="介质类型" :formatter="formatterType1" align="center"></el-table-column>
+                <el-table-column prop="interId" label="接口类型" :formatter="formatterType2" align="center"></el-table-column>
+                <el-table-column prop="isShelflife" label="保质期内" align="center"></el-table-column>
+                <el-table-column prop="phenomenon" label="故障现象" align="center"></el-table-column>
+                <el-table-column prop="reason" label="故障原因" align="center"></el-table-column>
+                <el-table-column prop="descr" label="描述" align="center"></el-table-column>
+                <el-table-column label="操作" width="160" align="center">
+                    <template slot-scope="scope">
+                        <el-link type="primary" size="small" @click="edit(scope.row.carrierId)">编辑</el-link>
+
+                        <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.carrierId)">
+                            <el-link slot="reference" type="danger" size="small">删除</el-link>
+                        </el-popconfirm>
+                        <!--<el-link type="success" size="small" @click="showImageFrom(scope.row.orderId)">工单照片</el-link>-->
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <el-pagination
+                    @size-change="handleSizeChange"
+                    @current-change="handleCurrentChange"
+                    :current-page="pageInfo.currentPage"
+                    :page-sizes="pageInfo.pageSizes"
+                    :page-size="pageInfo.pageSize"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    :total="pageInfo.total">
+            </el-pagination>
+
+            <el-dialog title="编辑载体" :visible.sync="dialog.show" width="400px">
+                <el-form :model="editForm" ref="editForm" label-width="100px">
+                    <el-form-item label="工单编号" prop="typeId" >
+                        <el-select v-model="editForm.orderId" placeholder="请选择">
+                            <el-option
+                                    v-for="userType in orderIdData"
+                                    :key="userType.orderId"
+                                    :label="userType.orderId"
+                                    :value="userType.orderId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="介质类型" prop="mediumId" >
+                        <el-select v-model="editForm.mediumId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in option1s"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="接口类型" prop="interId" >
+                        <el-select v-model="editForm.interId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in option2s"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="保质期内" prop="isShelflife">
+                        <el-input v-model="editForm.isShelflife" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="故障现象" prop="phenomenon">
+                        <el-input v-model="editForm.phenomenon" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="故障原因" prop="reason">
+                        <el-input v-model="editForm.reason" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="描述" prop="descr">
+                        <el-input v-model="editForm.descr" auto-complete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.show = false">取 消</el-button>
+                    <el-button type="primary" @click="update()">保存</el-button>
+                </div>
+            </el-dialog>
+
+            <el-dialog title="新建载体信息" :visible.sync="dialog.addShow" width="400px">
+                <el-form :model="addForm" label-width="80px" ref="addForm">
+                    <el-form-item label="工单编号" prop="typeId" >
+                        <el-select v-model="addForm.orderId" placeholder="请选择">
+                            <el-option
+                                    v-for="userType in orderIdData"
+                                    :key="userType.orderId"
+                                    :label="userType.orderId"
+                                    :value="userType.orderId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+
+                    <el-form-item label="介质类型" prop="mediumId" >
+                        <el-select v-model="addForm.mediumId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in option1s"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="接口类型" prop="interId" >
+                        <el-select v-model="addForm.interId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in option2s"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="保质期内" prop="isShelflife">
+                        <el-input v-model="addForm.isShelflife" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="故障现象" prop="phenomenon">
+                        <el-input v-model="addForm.phenomenon" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="故障原因" prop="reason">
+                        <el-input v-model="addForm.reason" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="描述" prop="descr">
+                        <el-input v-model="addForm.descr" auto-complete="off"></el-input>
+                    </el-form-item>
+
+                </el-form>
+
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.addShow = false">取 消</el-button>
+                    <el-button type="primary" @click="save()">保存</el-button>
+                </div>
+            </el-dialog>
+
+        </el-card>
+    </div>
+
+    <!-- import Vue before Element -->
+    <script src="/resource/js/vue.js"></script>
+    <script src="/resource/js/axios.min.js"></script>
+    <!-- import JavaScript -->
+    <script src="/resource/element-ui/lib/index.js"></script>
+    <script>
+
+        new Vue({
+            el: `#app`,
+            data: {
+                query:{
+
+                },
+                option1s:[
+                    {
+                        value: null,
+                        label: ''
+                    },
+                    {
+                        value: 1,
+                        label: '硬盘'
+                    },
+                    {
+                        value: 2,
+                        label: '磁盘阵列'
+                    },
+                    {
+                        value: 3,
+                        label: 'U盘'
+                    },
+                    {
+                        value: 4,
+                        label: '其他介质'
+                    }
+                ],
+                option2s:[
+                    {
+                        value: null,
+                        label: ''
+                    },
+                    {
+                        value: 1,
+                        label: 'SATA'
+                    },
+                    {
+                        value: 2,
+                        label: 'IDE'
+                    },
+                    {
+                        value: 3,
+                        label: 'SCSI'
+                    },
+                    {
+                        value: 4,
+                        label: 'SAS'
+                    },
+                    {
+                        value: 5,
+                        label: 'FC'
+                    },
+                    {
+                        value: 6,
+                        label: 'USB'
+                    },
+                    {
+                        value: 7,
+                        label: '其他接口'
+                    }
+                ],
+                dialog: {
+                  addShow:false,
+                    show:false,
+                },
+                tableData:[],
+                pageInfo: {
+                    currentPage: 1,
+                    pageSize: 5,
+                    total: 0,
+                    pageSizes: [5, 10, 20, 50, 100]
+                },
+                editForm:{},
+                orderIdData: {},
+                addForm: {},
+            },
+            methods:{
+                load(){
+                    axios.post("queryAllByPojo"+"/"+this.pageInfo.pageSize+"/"+this.pageInfo.currentPage,this.query)
+                    .then(resp =>{
+                        this.tableData = resp.data.list;
+                        this.pageInfo.total = resp.data.total;
+                    })
+                    .catch(error =>{
+                        this.$message.error("load error!");
+                    })
+                },
+                handleSizeChange(size) {//改变的是每页显示的条数
+                    this.pageInfo.pageSize = size;
+                    this.load();
+                },
+                handleCurrentChange(size) {//改变当前页数
+                    this.pageInfo.currentPage = size;
+                    this.load();
+                },
+                formatterType1(row){
+                    switch (row.mediumId){
+                        case 1:
+                            return '硬盘';
+                        case 2:
+                            return '磁盘阵列';
+                        case 3:
+                            return 'U盘';
+                        case 4:
+                            return '其它介质';
+                    }
+                },
+                formatterType2(row){
+                    switch (row.interId){
+                        case 1:
+                            return 'SATA';
+                        case 2:
+                            return 'IDE';
+                        case 3:
+                            return 'SCSI';
+                        case 4:
+                            return 'SAS';
+                        case 5:
+                            return 'FC';
+                        case 6:
+                            return 'USB';
+                        case 7:
+                            return '其他接口';
+                    }
+                },
+                edit(carrierId){
+                    axios.get("queryById/"+carrierId)
+                    .then(resp => {
+                        this.editForm = resp.data;
+                        this.dialog.show = true;
+                    })
+                    .catch(error => {
+                        this.$message.error("edit error!");
+                    })
+                },
+                loadTypeData() {
+                  axios.get("../OrderRepair/queryAllRepairId")
+                    .then(resp => {
+                        this.orderIdData = resp.data;
+                    })
+                    .catch(error => {
+                        this.$message.error("loadTypeData error!");
+                    })
+                },
+                update(){
+                  axios.post("update", this.editForm)
+                  .then(resp => {
+                      this.$message.success("update success!");
+                      this.dialog.show = false;
+                      this.load();
+                  })
+                  .catch(error => {
+                      this.$message.error("update error!");
+                  })
+                  .then(() => {
+                      //重置表单
+                      this.$refs.editForm.resetFields();
+                  })
+                },
+                save() {
+                  axios.post("add", this.addForm)
+                  .then(resp => {
+                      this.$message.success("success!");
+                      this.dialog.addShow = false;
+                      this.load();
+                  })
+                  .catch(error => {
+                      this.$message.error("error!");
+                  })
+                  .then(() => {
+                      this.$refs.addForm.resetFields();
+                  })
+                },
+            },
+            mounted: function(){
+                this.load();
+                this.loadTypeData();
+            }
+        })
+    </script>
+</body>
+</html>

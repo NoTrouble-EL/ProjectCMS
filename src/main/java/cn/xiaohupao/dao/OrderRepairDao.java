@@ -18,6 +18,8 @@ public interface OrderRepairDao {
      */
     List<OrderRepair> queryAll(OrderRepair orderRepair);
 
+    List<OrderRepair> queryAllOrderId();
+
     /**
      * 根据Id查询用户
      * @param orderId id

@@ -32,6 +32,11 @@ public class OrderRepairServiceImpl implements OrderRepairService {
     }
 
     @Override
+    public List<OrderRepair> queryAllRepairId() {
+        return orderRepairDao.queryAllOrderId();
+    }
+
+    @Override
     public OrderRepair queryById(int orderId) {
         return orderRepairDao.queryById(orderId);
     }

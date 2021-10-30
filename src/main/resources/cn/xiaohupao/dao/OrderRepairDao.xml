@@ -69,4 +69,9 @@
         FROM ORDER_REPAIR o
         WHERE o.ORDER_ID = #{orderId}
     </select>
+
+    <select id="queryAllOrderId" resultType="cn.xiaohupao.domain.OrderRepair">
+        SELECT ORDER_ID
+        FROM ORDER_REPAIR
+    </select>
 </mapper>

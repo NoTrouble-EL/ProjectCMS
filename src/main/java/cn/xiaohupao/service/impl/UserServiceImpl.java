@@ -3,6 +3,7 @@ package cn.xiaohupao.service.impl;
 import cn.xiaohupao.dao.UserDao;
 import cn.xiaohupao.domain.User;
 import cn.xiaohupao.service.UserService;
+import cn.xiaohupao.utils.Encode;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +23,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addUser(User user) {
+        user.setPassword(Encode.encodeByMd5(user.getPassword()));
         userDao.addUser(user);
     }
 
     @Override
     public User queryLogin(String userName, String password) {
-        return userDao.queryLogin(userName, password);
+        return userDao.queryLogin(userName, Encode.encodeByMd5(password));
     }
 
     @Override
@@ -37,6 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
+        user.setPassword(Encode.encodeByMd5(user.getPassword()));
         userDao.updateUser(user);
     }
 

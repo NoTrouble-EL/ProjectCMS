@@ -42,7 +42,7 @@
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="load"><i class="el-icon-search"></i>搜索</el-button>
-                        <el-button type="success" @click="dialog.addshow = true">新建</el-button>
+                        <el-button type="success" @click="dialog.addShow = true">新建</el-button>
                     </el-form-item>
 
                 </el-form>
@@ -126,6 +126,44 @@
                 </div>
             </el-dialog>
 
+            <el-dialog title="添加用户" :visible.sync="dialog.addShow" width="400px">
+                <el-form :model="addForm"  label-width="80px" ref="addForm" >
+                    <el-form-item label="用户类型" prop="deptId" >
+                        <el-select v-model="addForm.typeId" placeholder="请选择">
+                            <el-option
+                                    v-for="userType in typeData"
+                                    :key="userType.typeId"
+                                    :label="userType.typeName"
+                                    :value="userType.typeId">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="用户名" prop="userName" >
+                        <el-input v-model="addForm.userName" auto-complete="off" ></el-input>
+                    </el-form-item>
+                    <el-form-item label="姓名" prop="realName">
+                        <el-input v-model="addForm.realName" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input v-model="addForm.password" type="password" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="电话" prop="phone">
+                        <el-input v-model="addForm.phone" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="年龄" prop="age">
+                        <el-input v-model="addForm.age" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="邮箱" prop="email">
+                        <el-input v-model="addForm.email" auto-complete="off"></el-input>
+                    </el-form-item>
+
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.addShow = false">取 消</el-button>
+                    <el-button type="primary" @click="save()">保存</el-button>
+                </div>
+            </el-dialog>
+
         </el-card>
     </div>
 </body>
@@ -153,6 +191,7 @@
             },
             editForm: {},
             typeData:[],
+            addForm:{},
         },
         methods: {
             load(){

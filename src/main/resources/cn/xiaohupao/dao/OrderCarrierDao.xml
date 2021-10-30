@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xiaohupao.dao.OrderCarrierDao">
+    <insert id="addOrderCarrier">
+        INSERT INTO ORDER_CARRIER
+        (ORDER_ID, MEDIUM_ID, INTER_ID, IS_SHELFLIFE, PHENOMENON, REASON, DESCR)
+        VALUE
+        (#{orderId}, #{mediumId}, #{interId}, #{isShelflife}, #{phenomenon}, #{reason}, #{descr})
+    </insert>
+
+    <update id="updateOrderCarrier">
+        UPDATE ORDER_CARRIER
+        <set>
+            <if test="orderId!=null and orderId!=''">
+                ORDER_ID = #{orderId},
+            </if>
+            <if test="mediumId!=null and mediumId!=''">
+                MEDIUM_ID = #{mediumId},
+            </if>
+            <if test="interId!=null and interId!=''">
+                INTER_ID = #{interId},
+            </if>
+            <if test="isShelflife!=null and isShelflife!=''">
+                IS_SHELFLIFE = #{isShelflife},
+            </if>
+            <if test="phenomenon!=null and phenomenon!=''">
+                PHENOMENON = #{phenomenon},
+            </if>
+            <if test="reason!=null and reason!=''">
+                REASON = #{reason},
+            </if>
+            <if test="descr!=null and descr!=''">
+                DESCR = #{descr}
+            </if>
+        </set>
+        WHERE CARRIER_ID = #{carrierId}
+    </update>
+
+    <delete id="deleteOrderCarrierById">
+        DELETE
+        FROM ORDER_CARRIER
+        WHERE CARRIER_ID = #{id}
+    </delete>
+    <select id="queryAll" resultType="cn.xiaohupao.domain.OrderCarrier">
+        SELECT *
+        FROM ORDER_CARRIER
+    </select>
+
+    <select id="queryById" resultType="cn.xiaohupao.domain.OrderCarrier">
+        SELECT *
+        FROM ORDER_CARRIER
+        WHERE CARRIER_ID = #{carrierId}
+    </select>
+
+    <select id="queryAllByPojo" resultType="cn.xiaohupao.domain.OrderCarrier">
+        SELECT *
+        FROM ORDER_CARRIER
+        <where>
+            <if test="mediumId!=null and mediumId!=''">
+                MEDIUM_ID = #{mediumId}
+            </if>
+            <if test="interId!=null and interId!=''">
+                AND INTER_ID = #{interId}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -6,6 +6,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 /**
  * @Author: xiaohupao
@@ -32,6 +34,11 @@ public class OrderRepairController {
             orderRepair.setEnd(dateRange[1]);
         }
         return orderRepairService.queryAll(orderRepair, pageSize, pageNum);
+    }
+
+    @GetMapping("queryAllRepairId")
+    public List<OrderRepair> queryAllRepairId(){
+        return orderRepairService.queryAllRepairId();
     }
 
     @GetMapping("queryById/{orderId}")
