@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserType {
 
-  private long typeId;
+  private Integer typeId;
   private String typeName;
 
 }

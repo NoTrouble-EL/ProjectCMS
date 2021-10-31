@@ -18,6 +18,10 @@ public interface OrderRepairDao {
      */
     List<OrderRepair> queryAll(OrderRepair orderRepair);
 
+    /**
+     * 查询所有的订单Id
+     * @return 订单对象
+     */
     List<OrderRepair> queryAllOrderId();
 
     /**
@@ -44,4 +48,6 @@ public interface OrderRepairDao {
      * @param id id
      */
     void deleteOrderRepairById(int id);
+
+    List<OrderRepair> queryCustomer();
 }

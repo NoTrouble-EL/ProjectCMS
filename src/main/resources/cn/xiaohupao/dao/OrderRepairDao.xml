@@ -74,4 +74,10 @@
         SELECT ORDER_ID
         FROM ORDER_REPAIR
     </select>
+
+    <select id="queryCustomer" resultType="cn.xiaohupao.domain.OrderRepair">
+        SELECT o.CUS_ID AS cusId, COUNT(o.CUS_ID) AS count, oc.CUS_NAME AS cusName
+        FROM ORDER_REPAIR o JOIN order_customer oc on o.CUS_ID = oc.CUS_ID
+        GROUP BY o.CUS_ID
+    </select>
 </mapper>

@@ -17,7 +17,7 @@ public class OrderRepair {
   private String orderType;
   private Integer progressId;
   private String restoreResult;
-  private long userId;
+  private Integer userId;
 
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   @JsonFormat(pattern = "yyyy-MM-dd")
@@ -33,7 +33,7 @@ public class OrderRepair {
   @DateTimeFormat(pattern = "yyyy-MM-dd")
   @JsonFormat(pattern = "yyyy-MM-dd")
   private Date takeoutTime;
-  private long cusId;
+  private Integer cusId;
 
   private String progressName;
   private String realName;
@@ -46,4 +46,6 @@ public class OrderRepair {
   private Integer pageSize;
   private Integer currentPage;
   private Integer startRow;
+
+  private Integer count;
 }

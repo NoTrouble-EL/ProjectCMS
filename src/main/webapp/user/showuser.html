@@ -128,6 +128,12 @@
 
             <el-dialog title="添加用户" :visible.sync="dialog.addShow" width="400px">
                 <el-form :model="addForm"  label-width="80px" ref="addForm" >
+                    <el-form-item label="用户名" prop="userName" >
+                        <el-input v-model="addForm.userName" auto-complete="off" ></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input v-model="addForm.password" type="password" auto-complete="off"></el-input>
+                    </el-form-item>
                     <el-form-item label="用户类型" prop="deptId" >
                         <el-select v-model="addForm.typeId" placeholder="请选择">
                             <el-option
@@ -138,14 +144,8 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
-                    <el-form-item label="用户名" prop="userName" >
-                        <el-input v-model="addForm.userName" auto-complete="off" ></el-input>
-                    </el-form-item>
                     <el-form-item label="姓名" prop="realName">
                         <el-input v-model="addForm.realName" auto-complete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="密码" prop="password">
-                        <el-input v-model="addForm.password" type="password" auto-complete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="电话" prop="phone">
                         <el-input v-model="addForm.phone" auto-complete="off"></el-input>
@@ -174,6 +174,7 @@
 <!-- import JavaScript -->
 <script src="/resource/element-ui/lib/index.js"></script>
 <script>
+
     new Vue({
         el: '#app',
         data: {
@@ -252,6 +253,30 @@
                 .then(() =>{
                     //重置表单
                     this.$refs.editForm.resetFields();
+                })
+            },
+            save(){
+                axios.post("add", this.addForm)
+                .then(resp => {
+                    this.$message.success("add success!");
+                    this.dialog.addShow = false;
+                    this.load()
+                })
+                .catch(error => {
+                    this.$message.error("add error!");
+                })
+                .then(() => {
+                    this.$refs.addForm.resetFields();
+                })
+            },
+            del(userId){
+                axios.get("delete/"+userId)
+                .then(resp => {
+                    this.$message.success("delete success!");
+                    this.load();
+                })
+                .catch(error => {
+                    this.$message.error("delete error!");
                 })
             },
         },

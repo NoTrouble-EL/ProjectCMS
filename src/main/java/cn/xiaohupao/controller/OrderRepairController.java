@@ -6,7 +6,9 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -61,5 +63,21 @@ public class OrderRepairController {
     @PostMapping("update")
     public void updateOrderRepair(@RequestBody OrderRepair orderRepair){
         orderRepairService.updateOrderRepair(orderRepair);
+    }
+
+    @GetMapping("queryCustomer")
+    public Map<String, Object> queryCustomer(){
+        List<OrderRepair> orderRepairs = orderRepairService.queryCustomer();
+        String[] cusNames = new String[orderRepairs.size()];
+        int[] counts = new int[orderRepairs.size()];
+        for (int i = 0; i < orderRepairs.size(); i++){
+            cusNames[i] = orderRepairs.get(i).getCusName();
+            counts[i] = orderRepairs.get(i).getCount();
+        }
+        Map<String, Object> res = new HashMap<>(2);
+        res.put("xAxisData", cusNames);
+        res.put("seriesData", counts);
+
+        return res;
     }
 }

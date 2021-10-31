@@ -78,7 +78,7 @@
                         <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.orderId)">
                             <el-link slot="reference" type="danger" size="small">删除</el-link>
                         </el-popconfirm>
-                        <!--<el-link type="success" size="small" @click="showImageFrom(scope.row.orderId)">工单照片</el-link>-->
+                        <el-link type="success" size="small" @click="showImageForm(scope.row.orderId)">工单照片</el-link>
                     </template>
                 </el-table-column>
             </el-table>
@@ -157,7 +157,120 @@
                 </div>
             </el-dialog>
 
+        </el-card>
 
+        <!--<h1 style="margin: 20px auto">工单照片</h1>-->
+        <el-card class="box-card" style="width: 1180px;">
+            <el-dialog title="工单照片" :visible.sync="dialog.showImage" width="900px">
+
+                <el-form :model="imageForm" label-width="80px" ref="imageForm">
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="工单编号"  prop="orderId">
+                                <el-input v-model="imageForm.orderId" auto-complete="off" :disabled="true"></el-input>
+                            </el-form-item>
+                            <el-form-item label="工单类型" prop="type">
+                                <el-select v-model="imageForm.type" placeholder="请选择">
+                                    <el-option
+                                            v-for="item in imageType"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value">
+                                    </el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item label="名称" prop="imageName">
+                                <el-input v-model="imageForm.imageName" auto-complete="off"></el-input>
+                            </el-form-item>
+                            <el-form-item label="图片路径"  prop="imageUrl">
+                                <el-input v-model="imageForm.imageUrl" auto-complete="off" :disabled="true"></el-input>
+                            </el-form-item>
+                            <el-form-item >
+                                <el-button type="primary" @click="addCarrierImage" >提交</el-button>
+                                <el-button type="info" >重置</el-button>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="工单照片">
+                                <el-upload
+                                        ref="upload"
+                                        :class="{disabled:uploadDisabled}"
+                                        action="/order/upload"
+                                        name="file"
+                                        list-type="picture-card"
+                                        :on-preview="handlePreview"
+                                        :on-progress="onProgress"
+                                        :on-remove="handleRemove"
+                                        :on-success="handleSuccess"
+                                        :before-upload="beforeUpload"
+                                        :on-change="handleChange"
+                                        :file-list="fileList"
+                                        accept=".jpeg,.jpg,.gif,.png"
+                                        :limit="limitCountImg">
+                                    <i class="el-icon-plus"></i>
+                                </el-upload>
+                                <!--预览图片-->
+                                <el-dialog :modal-append-to-body="false" :visible.sync="imgVisible" width="30%">
+                                    <img width="100%" :src="dialogImageUrl" alt="图片未找到" />
+                                </el-dialog>
+
+                            </el-form-item>
+                            <el-form-item label="头像" prop="picture" hidden>
+                                <el-input v-model="addForm.picture" clearable></el-input>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.showImage = false">取 消</el-button>
+                    <el-button type="primary" @click="save()">保存</el-button>
+                </div>
+
+                <el-table :data="imageData" stripe border>
+                    <el-table-column prop="imageId" label="ID" width="80" align="center"></el-table-column>
+                    <el-table-column prop="orderId" label="工单" width="80" align="center"></el-table-column>
+                    <el-table-column prop="type" label="类型" :formatter="statusFormat" align="center"></el-table-column>
+                    <el-table-column prop="imageName" label="名称" align="center"></el-table-column>
+                    <el-table-column label="图片"  align="center">
+                        <template scope="scope">
+                            <el-link @click="down(scope.row.imageUrl)" target="_blank">
+                                <img :src="scope.row.imageUrl" class="picture" />
+                            </el-link>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="160" align="center">
+                        <template slot-scope="scope">
+                            <el-link type="primary" size="small" @click="editImage(scope.row.imageId)">编辑</el-link>
+                            <el-popconfirm title="这是一段内容确定删除吗？" @confirm="delImage(scope.row.imageId)">
+                                <el-link slot="reference" type="danger" size="small">删除</el-link>
+                            </el-popconfirm>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
+                <el-dialog title="编辑图片" :visible.sync="dialog.updateImageShow" width="400px">
+                    <el-form :model="updateImage" label-width="80px" ref="updateForm">
+                        <el-form-item label="图片类型" prop="type">
+                            <el-select v-model="updateImage.type" placeholder="请选择">
+                                <el-option
+                                        v-for="item in imageType"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="图片名称" prop="imageName" >
+                            <el-input v-model="updateImage.imageName" auto-complete="off"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="dialog.updateImageShow = false">取 消</el-button>
+                        <el-button type="primary" @click="saveImage()">保存</el-button>
+                    </div>
+                </el-dialog>
+
+            </el-dialog>
         </el-card>
     </div>
 
@@ -185,7 +298,9 @@
                 },
                 dialog: {
                     addShow: false,
-                    updateShow: false
+                    updateShow: false,
+                    showImage: false,
+                    updateImageShow: false,
                 },
                 updateForm: {
 
@@ -206,6 +321,27 @@
                 custommers: [
 
                 ],
+                imageForm:{},
+                updateImage:{},
+                imageType: [
+                    {
+                        value: '1',
+                        label: '高拍仪'
+                    }, {
+                        value: '2',
+                        label: '相机'
+                    }
+                ],
+                imageData:[],
+                // 是否禁用上传
+                uploadDisabled:false,
+                // 是否显示预览图片
+                imgVisible: false,
+                // 预览图片url
+                dialogImageUrl: "",
+                // 上传的文件列表（用于在上传组件中回显图片）, 例如: [{name: 'xxx.jpg', url: 'https://xxx.com/xxx.jpg'}]
+                fileList: [],
+                limitCountImg:1,   //上传图片的最大数量
             },
             methods: {
                 load(){
@@ -289,7 +425,111 @@
                         this.$message.error("edit error!");
                     })
                 },
+                showImageForm(orderId){
+                    this.dialog.showImage = true;
+                    this.loadImage();
+                    this.imageForm.orderId =orderId;
+                },
+                loadImage(){
+                    axios.get("../carrierImage/queryAll")
+                    .then(resp => {
+                        this.imageData = resp.data;
+                    })
+                    .catch(error => {
+                        this.$message.error("loadImage error!");
+                    })
+                },
+                addCarrierImage(){
+                    axios.post("../carrierImage/add", this.imageForm)
+                    .then(resp => {
+                        this.$message.success("add success!");
+                        this.loadImage();
+                    })
+                    .catch(error => {
+                        this.$message.error("add error!");
+                    })
+                    .then(() => {
+                        this.$refs.imageForm.resetFields();
+                    })
+                },
+                //文件上传成功的钩子函数
+                handleSuccess(res, result) {
+                    this.$message.success("图片上传成功");
+                    if (result.response.success) {
+                        //this.imgVisible = true;
+                        this.dialogImageUrl = result.response.message;
+                        this.imageForm.imageUrl = result.response.message; //将返回的文件储存路径赋值picture字段
+                    }
+                },
+                // 上传中
+                onProgress(event, file, fileList){
+                    this.uploadDisabled = true;
+                },
+                //删除文件之前的钩子函数
+                handleRemove(file, fileList) {
+                    this.$message.info("已删除原有图片");
+                    this.uploadDisabled = fileList.length >= this.limitCountImg;
+                },
+                //处理图片变化时
+                handleChange(file, fileList){
+                    this.uploadDisabled = fileList.length >= this.limitCountImg;
+                },
+                //点击列表中已上传的文件事的钩子函数
+                handlePreview(file) {
+                },
+                //参数是上传的文件，若返回false，或返回Primary且被reject，则停止上传
+                beforeUpload(file) {
+                    const isLt2M = file.size / 1024 / 1024 < 2;
+                    if (!isLt2M) {
+                        this.$message.error('上传图片大小不能超过 2MB!');
+                    }
+                    return isLt2M;
+                },
+                statusFormat(row){
+                    if (row.type === '1') {
+                        return '高拍仪'
+                    } else  {
+                        return '相机'
+                    }
 
+                },
+                down(imageUrl){
+                    window.location.href="/order/down?filename="+imageUrl;
+                },
+                delImage(imageId){
+                  axios.get("../carrierImage/delete/"+imageId)
+                    .then(resp => {
+                        this.$message.success("delete success!");
+                        this.loadImage();
+                    })
+                    .catch(error => {
+                        this.$message.error("delete image error!");
+                    })
+                },
+                editImage(imageId){
+                    axios.get("../carrierImage/query/"+imageId)
+                    .then(resp => {
+                        this.updateImage = resp.data;
+                        this.dialog.updateImageShow = true;
+                    })
+                    .catch(error => {
+                        this.$message.error("editImage error!");
+                    })
+                },
+                saveImage(){
+                    axios.post("../carrierImage/update", this.updateImage)
+                        .then(resp =>{
+                            this.$message.success("success!");
+                            this.dialog.updateImageShow = false;
+                            this.loadImage();
+                        })
+                        .catch(error =>{
+                            this.$message.error("error!");
+                        })
+                        .then(()=>{
+                            this.$refs.updateImage.resetFields();
+                        })
+                },
             },
             mounted: function () {
                 this.load();

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.xiaohupao.dao.CarrierImageDao">
+
+    <insert id="addCarrierImage">
+        INSERT INTO CARRIER_IMAGE
+        (IMAGE_URL, ORDER_ID, TYPE, IMAGE_NAME)
+        VALUE
+        (#{imageUrl}, #{orderId}, #{type}, #{imageName})
+    </insert>
+
+    <update id="updateCarrierImage">
+        UPDATE CARRIER_IMAGE
+        <set>
+            <if test="imageUrl!=null and imageUrl!=''">
+                IMAGE_URL = #{imageUrl},
+            </if>
+            <if test="orderId!=null and orderId!=''">
+                ORDER_ID = #{orderId},
+            </if>
+            <if test="type!=null and type!=''">
+                TYPE = #{type},
+            </if>
+            <if test="imageName!=null and imageName!=''">
+                IMAGE_NAME = #{imageName}
+            </if>
+        </set>
+        WHERE IMAGE_ID = #{imageId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE
+        FROM CARRIER_IMAGE
+        WHERE IMAGE_ID = #{id}
+    </delete>
+
+    <select id="queryAll" resultType="cn.xiaohupao.domain.CarrierImage">
+        SELECT *
+        FROM CARRIER_IMAGE
+    </select>
+
+    <select id="queryById" resultType="cn.xiaohupao.domain.CarrierImage">
+        SELECT *
+        FROM CARRIER_IMAGE
+        WHERE IMAGE_ID = #{id}
+    </select>
+</mapper>

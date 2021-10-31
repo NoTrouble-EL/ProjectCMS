@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main</title>
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+</head>
+<!-- import Vue before Element -->
+<script src="/resource/js/vue.js"></script>
+<script src="/resource/js/axios.min.js"></script>
+<!-- import JavaScript -->
+<script src="/resource/element-ui/lib/index.js"></script>
+<script src="/resource/echarts/dist/echarts.min.js"></script>
+<body>
+    <!-- 为 ECharts 准备一个定义了宽高的 DOM -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script>
+        new Vue({
+            el: '#main',
+            data: {
+                xAxisData:[],
+                seriesData:[],
+            },
+            methods: {
+                async drawLine(){
+                    await axios.get("/OrderRepair/queryCustomer")
+                        .then(resp => {
+                            this.xAxisData = resp.data.xAxisData;
+                            this.seriesData = resp.data.seriesData;
+                        })
+                    let myChart = echarts.init(document.getElementById('main'));
+                    // 绘制图表
+                    myChart.setOption({
+                        title: { text: '在Vue中使用echarts' },
+                        tooltip: {},
+                        xAxis: {
+                            data: this.xAxisData
+                        },
+                        yAxis: {},
+                        series: [{
+                            name: '销量',
+                            type: 'bar',
+                            data: this.seriesData
+                        }]
+                    });
+                },
+
+            },
+            mounted: function(){
+                this.drawLine();
+            }
+        })
+    </script>
+</body>
+</html>

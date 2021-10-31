@@ -55,4 +55,9 @@ public class OrderRepairServiceImpl implements OrderRepairService {
     public void deleteOrderRepairById(int orderId) {
         orderRepairDao.deleteOrderRepairById(orderId);
     }
+
+    @Override
+    public List<OrderRepair> queryCustomer() {
+        return orderRepairDao.queryCustomer();
+    }
 }
