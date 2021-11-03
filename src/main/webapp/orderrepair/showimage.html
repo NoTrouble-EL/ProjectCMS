@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <style>
+        .picture{
+            width: 60px;
+            height: 60px;
+            border: 0px;
+        }
+        .disabled  .el-upload--picture-card{
+            display:none;   /* 上传按钮隐藏 */
+        }
+        h1, .box-card {
+            margin: auto;
+            width: 60%;
+        }
+
+        .el-form-item {
+            margin-bottom: 0
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <el-card class="box-card" style="width: 1180px;">
+
+        <div slot="header" class="clearfix">
+            <el-form :inline="true">
+                <el-form-item>
+                    <el-button type="success" plain @click="dialog.showAddImage = true">新建</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+
+        <el-table :data="tableData" stripe border>
+            <el-table-column prop="imageId" label="ID" width="80" align="center"></el-table-column>
+            <el-table-column prop="orderId" label="工单" width="80" align="center"></el-table-column>
+            <el-table-column prop="type" label="类型" :formatter="statusFormat" align="center"></el-table-column>
+            <el-table-column prop="imageName" label="名称" align="center"></el-table-column>
+            <el-table-column label="图片"  align="center">
+                <template scope="scope">
+                    <el-link @click="down(scope.row.imageUrl)" target="_blank">
+                        <img :src="scope.row.imageUrl" class="picture" />
+                    </el-link>
+                </template>
+            </el-table-column>
+
+            <el-table-column label="操作" width="160" align="center">
+                <template slot-scope="scope">
+                    <el-link type="primary" size="small" @click="edit(scope.row.imageId)">编辑</el-link>
+                    <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.imageId)">
+                        <el-link slot="reference" type="danger" size="small">删除</el-link>
+                    </el-popconfirm>
+                </template>
+            </el-table-column>
+        </el-table>
+
+            <el-dialog title="编辑图片" :visible.sync="dialog.updateImageShow" width="400px">
+                <el-form :model="updateImage" label-width="80px" ref="updateForm">
+                    <el-form-item label="图片类型" prop="type">
+                        <el-select v-model="updateImage.type" placeholder="请选择">
+                            <el-option
+                                    v-for="item in imageType"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="图片名称" prop="imageName" >
+                        <el-input v-model="updateImage.imageName" auto-complete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialog.updateImageShow = false">取 消</el-button>
+                    <el-button type="primary" @click="saveImage()">保存</el-button>
+                </div>
+            </el-dialog>
+    </el-card>
+</div>
+<!-- import Vue before Element -->
+<script src="/resource/js/vue.js"></script>
+<script src="/resource/js/axios.min.js"></script>
+<!-- import JavaScript -->
+<script src="/resource/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            tableData: [],
+            dialog:{
+                showAddImage: false,
+                updateImageShow: false,
+            },
+            updateImage:{},
+            imageType: [
+                {
+                    value: '1',
+                    label: '高拍仪'
+                }, {
+                    value: '2',
+                    label: '相机'
+                }
+            ],
+        },
+        methods: {
+            load(){
+                axios.get("../carrierImage/queryAll")
+                .then(resp => {
+                    this.tableData = resp.data;
+                })
+                .catch(error => {
+                    this.$message.error("load error!");
+                })
+            },
+            edit(imageId){
+                axios.get("../carrierImage/query/"+imageId)
+                    .then(resp => {
+                        this.updateImage = resp.data;
+                        this.dialog.updateImageShow = true;
+                    })
+                    .catch(error => {
+                        this.$message.error("editImage error!");
+                    })
+            },
+            del(imageId){
+                axios.get("../carrierImage/delete/"+imageId)
+                    .then(resp => {
+                        this.$message.success("delete success!");
+                        this.loadImage();
+                    })
+                    .catch(error => {
+                        this.$message.error("delete image error!");
+                    })
+            },
+            statusFormat(row){
+                if (row.type === '1') {
+                    return '高拍仪'
+                } else  {
+                    return '相机'
+                }
+
+            },
+            saveImage(){
+                axios.post("../carrierImage/update", this.updateImage)
+                    .then(resp =>{
+                        this.$message.success("success!");
+                        this.dialog.updateImageShow = false;
+                        this.load();
+                    })
+                    .catch(error =>{
+                        this.$message.error("error!");
+                    })
+                    .then(()=>{
+                        this.$refs.updateImage.resetFields();
+                    })
+            },
+        },
+        mounted: function(){
+            this.load();
+        }
+    })
+</script>
+</body>
+</html>

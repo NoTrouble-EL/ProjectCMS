@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/resource/element-ui/lib/theme-chalk/index.css">
+    <style>
+        h1, .box-card {
+            margin: auto;
+            width: 60%;
+        }
+
+        .el-form-item {
+            margin-bottom: 0
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app" v-cloak>
+    <el-card class="box-card" style="width: 1180px;">
+        <div slot="header" class="clearfix">
+            <el-form :inline="true" :model="query">
+
+                <el-form-item>
+                    <el-row>
+                        <el-col :span="16">
+                            <el-button type="success" plain @click="dialog.showAdd = true">新建</el-button>
+                            <el-button type="success" @click="downExcel">导出数据</el-button>
+                        </el-col>
+                        <el-col :span="8">
+                            <el-upload
+                                    class="clearfix"
+                                    action="/dist/importExcel"
+                                    name="excel"
+                                    :on-progress="onExcelProgress"
+                                    :on-success="handleExcelSuccess"
+                                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                    multiple
+                                    :limit="1">
+                                <el-button  type="primary">数据导入</el-button>
+                            </el-upload>
+                        </el-col>
+                    </el-row>
+                </el-form-item>
+
+            </el-form>
+        </div>
+
+        <el-table :data="tableData" stripe border>
+            <el-table-column prop="diskId" label="ID" width="80" align="center"></el-table-column>
+            <el-table-column prop="brandId" label="品牌类型" width="80" align="center"></el-table-column>
+            <el-table-column prop="orderId" label="工单" width="80" align="center"></el-table-column>
+            <el-table-column prop="capacity" label="容量" align="center"></el-table-column>
+            <el-table-column prop="model" label="名称" align="center"></el-table-column>
+            <el-table-column prop="serialnumber" label="序列号" align="center"></el-table-column>
+            <el-table-column prop="isnew" label="名称" :formatter="statusFormat" align="center"></el-table-column>
+            <el-table-column label="操作" width="160" align="center">
+                <template slot-scope="scope">
+                    <el-link type="primary" size="small" @click="edit(scope.row.orderId)">编辑</el-link>
+                    <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.orderId)">
+                        <el-link slot="reference" type="danger" size="small">删除</el-link>
+                    </el-popconfirm>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <el-dialog title="工单照片" :visible.sync="dialog.showAdd" width="800px">
+            <el-form :model="addForm" label-width="80px" ref="addForm"></el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialog.showAdd = false">取 消</el-button>
+                <el-button type="primary" @click="save()">保存</el-button>
+            </div>
+        </el-dialog>
+
+    </el-card>
+</div>
+<!-- import Vue before Element -->
+<script src="/resource/js/vue.js"></script>
+<script src="/resource/js/axios.min.js"></script>
+<!-- import JavaScript -->
+<script src="/resource/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            dialog: {
+                showAdd: false,
+            },
+            tableData: [],
+        },
+        methods: {
+            onExcelProgress(){
+
+            },
+            handleExcelSuccess(res,result) {
+                this.$message.success("导入成功");
+                if (result.response.success) {
+                    this.load();
+                }
+            },
+            downExcel(){
+                window.location.href="/carrierDisk/downExcel"
+            },
+            load(){
+                axios.get("../carrierDisk/queryAll")
+                .then(resp => {
+                    this.tableData = resp.data;
+                })
+                .catch(error => {
+                    this.$message.error("load error!");
+                })
+            },
+            statusFormat(row){
+                if (row.type === '1') {
+                    return '是'
+                } else  {
+                    return '否'
+                }
+
+            },
+            save() {
+                axios.post("add", this.addForm)
+                    .then(resp => {
+                        if (resp.data) {
+                            this.$message.success("添加成功！");
+                            this.dialog.addShow = false;
+                            this.load();//重新加载最新数据
+                        } else {
+                            this.$message.error("出错了！");
+                        }
+                    })
+                    .catch(error => {
+                        this.$message.error("出错了！");
+                    }).then(() => {
+                    this.$refs.addForm.resetFields();
+                })
+            },
+            del(id){
+
+            },
+            edit(id){
+
+            },
+        },
+        mounted: function(){
+            this.load();
+        }
+    })
+</script>
+</body>
+</html>
