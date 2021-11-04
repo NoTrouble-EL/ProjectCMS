@@ -13,4 +13,10 @@ public interface CarrierDiskDao {
     void addCarrierDisk(CarrierDisk carrierDisk);
 
     List<CarrierDisk> queryAll();
+
+    void deleteById(Integer id);
+
+    CarrierDisk queryById(Integer id);
+
+    void update(CarrierDisk carrierDisk);
 }

@@ -33,7 +33,7 @@
                         <el-col :span="8">
                             <el-upload
                                     class="clearfix"
-                                    action="/dist/importExcel"
+                                    action="/carrierDisk/importExcel"
                                     name="excel"
                                     :on-progress="onExcelProgress"
                                     :on-success="handleExcelSuccess"
@@ -51,27 +51,61 @@
 
         <el-table :data="tableData" stripe border>
             <el-table-column prop="diskId" label="ID" width="80" align="center"></el-table-column>
-            <el-table-column prop="brandId" label="品牌类型" width="80" align="center"></el-table-column>
+            <el-table-column prop="brandId" label="品牌类型" width="80" :formatter="formatterType" align="center"></el-table-column>
             <el-table-column prop="orderId" label="工单" width="80" align="center"></el-table-column>
             <el-table-column prop="capacity" label="容量" align="center"></el-table-column>
             <el-table-column prop="model" label="名称" align="center"></el-table-column>
             <el-table-column prop="serialnumber" label="序列号" align="center"></el-table-column>
-            <el-table-column prop="isnew" label="名称" :formatter="statusFormat" align="center"></el-table-column>
+            <el-table-column prop="isnew" label="是否新盘" :formatter="statusFormat" align="center"></el-table-column>
             <el-table-column label="操作" width="160" align="center">
                 <template slot-scope="scope">
-                    <el-link type="primary" size="small" @click="edit(scope.row.orderId)">编辑</el-link>
-                    <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.orderId)">
+                    <el-link type="primary" size="small" @click="edit(scope.row.diskId)">编辑</el-link>
+                    <el-popconfirm title="这是一段内容确定删除吗？" @confirm="del(scope.row.diskId)">
                         <el-link slot="reference" type="danger" size="small">删除</el-link>
                     </el-popconfirm>
                 </template>
             </el-table-column>
         </el-table>
 
-        <el-dialog title="工单照片" :visible.sync="dialog.showAdd" width="800px">
-            <el-form :model="addForm" label-width="80px" ref="addForm"></el-form>
+        <el-dialog title="修改用户" :visible.sync="dialog.updateShow" width="400px">
+            <el-form :model="editForm" ref="editForm" label-width="100px">
+                <el-form-item label="品牌类型" prop="brandId" >
+                    <el-select v-model="editForm.brandId" placeholder="请选择">
+                        <el-option
+                                v-for="userType in typeData"
+                                :key="userType.value"
+                                :label="userType.label"
+                                :value="userType.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="工单编号" prop="orderId" >
+                    <el-select v-model="editForm.orderId" placeholder="请选择">
+                        <el-option
+                                v-for="userType in orderIdList"
+                                :key="userType.orderId"
+                                :label="userType.orderId"
+                                :value="userType.orderId">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="容量" prop="capacity">
+                    <el-input v-model="editForm.capacity" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="名称" prop="model">
+                    <el-input v-model="editForm.model" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="序列号" prop="serialnumber">
+                    <el-input v-model="editForm.serialnumber" auto-complete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="是否新盘" prop="isnew">
+                    <el-input v-model="editForm.isnew" auto-complete="off"></el-input>
+                </el-form-item>
+            </el-form>
+
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialog.showAdd = false">取 消</el-button>
-                <el-button type="primary" @click="save()">保存</el-button>
+                <el-button @click="dialog.updateShow = false">取 消</el-button>
+                <el-button type="primary" @click="update()">保存</el-button>
             </div>
         </el-dialog>
 
@@ -87,9 +121,35 @@
         el: '#app',
         data: {
             dialog: {
-                showAdd: false,
+                updateShow: false,
             },
             tableData: [],
+            editForm: {},
+            typeData: [
+                {
+                    value: 1,
+                    label:'希捷'
+                },{
+                    value: 2,
+                    label: '西部数据'
+                },{
+                    value: 3,
+                    label: '日立'
+                },{
+                    value: 4,
+                    label: '三星'
+                },{
+                    value: 5,
+                    label: '东芝'
+                },{
+                    value: 6,
+                    label: 'DELL'
+                },{
+                    value: 7,
+                    label: '其他'
+                }
+            ],
+            orderIdList: [],
         },
         methods: {
             onExcelProgress(){
@@ -139,14 +199,72 @@
                 })
             },
             del(id){
-
+                axios.get("../carrierDisk/delete/"+id)
+                    .then(resp => {
+                        this.$message.success("delete success!");
+                        this.load();
+                    })
+                    .catch(error => {
+                        this.$message.error("del error!");
+                    })
             },
             edit(id){
-
+                axios.get("../carrierDisk/queryById/"+id)
+                    .then(resp => {
+                        this.editForm = resp.data;
+                        this.loadOrderId();
+                        this.dialog.updateShow = true;
+                    })
+                    .catch(error => {
+                        this.$message.error("queryById error!");
+                    })
+            },
+            formatterType(row){
+                switch (row.brandId){
+                    case 1:
+                        return '希捷';
+                    case 2:
+                        return '西部数据';
+                    case 3:
+                        return '日立';
+                    case 4:
+                        return '三星';
+                    case 5:
+                        return '东芝';
+                    case 6:
+                        return 'DELL';
+                    case 7:
+                        return '其他';
+                }
+            },
+            update(){
+                axios.post("../carrierDisk/update", this.editForm)
+                    .then(resp => {
+                        this.$message.success("update success!");
+                        this.dialog.updateShow = false;
+                        this.load();
+                    })
+                    .catch(error =>{
+                        this.$message.error("update error!");
+                    })
+                    .then(() =>{
+                        //重置表单
+                        this.$refs.editForm.resetFields();
+                    })
+            },
+            loadOrderId(){
+                axios.get("../OrderRepair/queryAllRepairId")
+                    .then(resp => {
+                        this.orderIdList = resp.data;
+                    })
+                    .catch(error => {
+                        this.$message.error("load error!");
+                    })
             },
         },
         mounted: function(){
             this.load();
+            this.loadOrderId();
         }
     })
 </script>

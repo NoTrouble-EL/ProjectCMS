@@ -11,4 +11,8 @@ import java.util.List;
 public interface CarrierDiskService {
     void addCarrierDisk(CarrierDisk carrierDisk);
     List<CarrierDisk> queryAll();
+    void deleteById(Integer id);
+    CarrierDisk queryById(Integer id);
+    void update(CarrierDisk carrierDisk);
+
 }

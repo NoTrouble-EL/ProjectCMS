@@ -31,4 +31,19 @@ public class CarrierDiskServiceImpl implements CarrierDiskService {
     public List<CarrierDisk> queryAll() {
         return carrierDiskDao.queryAll();
     }
+
+    @Override
+    public void deleteById(Integer id) {
+        carrierDiskDao.deleteById(id);
+    }
+
+    @Override
+    public CarrierDisk queryById(Integer id) {
+        return carrierDiskDao.queryById(id);
+    }
+
+    @Override
+    public void update(CarrierDisk carrierDisk) {
+        carrierDiskDao.update(carrierDisk);
+    }
 }

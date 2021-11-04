@@ -8,8 +8,45 @@
         VALUE
         (#{brandId}, #{capacity}, #{model}, #{serialnumber}, #{orderId}, #{isnew})
     </insert>
+
+    <update id="update">
+        UPDATE CARRIER_DISK
+        <set>
+            <if test="brandId!=null and brandId!=''">
+                BRAND_ID = #{brandId},
+            </if>
+            <if test="capacity!=null and capacity!=''">
+                CAPACITY = #{capacity},
+            </if>
+            <if test="model!=null and model!=''">
+                MODEL = #{model},
+            </if>
+            <if test="serialnumber!=null and serialnumber!=''">
+                SERIALNUMBER = #{serialnumber},
+            </if>
+            <if test="orderId!=null and orderId!=''">
+                ORDER_ID = #{orderId},
+            </if>
+            <if test="isnew!=null and isnew!=''">
+                ISNEW = #{isnew}
+            </if>
+        </set>
+        WHERE DISK_ID = #{diskId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE
+        FROM CARRIER_DISK
+        WHERE DISK_ID = #{id}
+    </delete>
     <select id="queryAll" resultType="cn.xiaohupao.domain.CarrierDisk">
         SELECT *
         FROM CARRIER_DISK
+    </select>
+
+    <select id="queryById" resultType="cn.xiaohupao.domain.CarrierDisk">
+        SELECT *
+        FROM CARRIER_DISK
+        WHERE DISK_ID = #{id}
     </select>
 </mapper>
